@@ -1,364 +1,157 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Z+ Secured Enterprise Accounting Tool</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        slate: { 950: '#030712' }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-    </style>
+    <title>OmniLedger - Enterprise ERP & Asset Security Suite</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-emerald-500 selection:text-slate-950">
+<body class="bg-slate-50 font-sans text-slate-900 antialiased">
 
-    <div id="app"></div>
-
-    <!-- React & Babel CDNs for single-file deployment -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        function App() {
-            const [isAuthenticated, setIsAuthenticated] = useState(false);
-            const [passwordInput, setPasswordInput] = useState('');
-            const [activeTab, setActiveTab] = useState('inventory');
-            const [notifications, setNotifications] = useState([]);
-
-            // Dummy initial data states
-            const [categories, setCategories] = useState([
-                { id: '1', name: 'Raw Materials', sub: [
-                    { id: '1-1', name: 'Metals', child: [
-                        { id: '1-1-1', name: 'Aluminium Sheets', sku: 'SKU-AL-01', stock: 450, unitPrice: 24.50 },
-                        { id: '1-1-2', name: 'Copper Rods', sku: 'SKU-CP-02', stock: 120, unitPrice: 58.00 }
-                    ]}
-                ]}
-            ]);
-
-            const [laborList, setLaborList] = useState([
-                { id: 'l1', name: 'John Doe', role: 'Machine Operator', status: 'PRESENT', materialIssued: 'Aluminium Sheets', issuedQty: 50, usedQty: 54 }
-            ]);
-
-            const [invoices, setInvoices] = useState([
-                { id: 'INV-1001', client: 'Acme Corp', amount: 4850.00, status: 'UNPAID', type: 'RECEIVABLE', dueDate: '2026-04-15' },
-                { id: 'INV-1002', client: 'Global Logistics', amount: 1420.00, status: 'PAID', type: 'PAYABLE', dueDate: '2026-03-30' }
-            ]);
-
-            const [newProdData, setNewProdData] = useState({ sku: 'SKU-AL-01', standard: 50, actual: 58 });
-
-            const handleLogin = (e) => {
-                e.preventDefault();
-                // Default secure password check (can be changed to anything)
-                if (passwordInput === 'admin123' || passwordInput.length > 3) {
-                    setIsAuthenticated(true);
-                    triggerNotification('🔒 Z+ Security Vault Unlocked successfully.');
-                } else {
-                    alert('Invalid Master Password');
-                }
-            };
-
-            const triggerNotification = (msg) => {
-                setNotifications(prev => [msg, ...prev]);
-                setTimeout(() => {
-                    setNotifications(prev => prev.filter(n => n !== msg));
-                }, 4000);
-            };
-
-            const checkMaterialVariance = (e) => {
-                e.preventDefault();
-                const diff = newProdData.actual - newProdData.standard;
-                if (diff > (newProdData.standard * 0.05)) {
-                    triggerNotification(`⚠️ ALERT: Material overconsumption detected for ${newProdData.sku}! Excess: +${diff} units.`);
-                } else {
-                    triggerNotification(`✅ Production run logged successfully within acceptable variance.`);
-                }
-            };
-
-            useEffect(() => {
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
-            });
-
-            if (!isAuthenticated) {
-                return (
-                    <div className="min-h-screen flex items-center justify-center p-4">
-                        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md">
-                            <div className="text-center mb-6">
-                                <span className="bg-emerald-500/10 text-emerald-400 text-xs px-3 py-1 rounded-full font-mono uppercase tracking-widest border border-emerald-500/20">Z+ Security Locked</span>
-                                <h1 className="text-2xl font-bold mt-3 tracking-tight">Enterprise Vault Login</h1>
-                                <p className="text-xs text-slate-400 mt-1">Enter master password to access accounting & inventory</p>
-                            </div>
-                            <form onSubmit={handleLogin} className="space-y-4">
-                                <div>
-                                    <label className="text-xs text-slate-400 font-mono uppercase">Master Password</label>
-                                    <input 
-                                        type="password" 
-                                        value={passwordInput}
-                                        onChange={(e) => setPasswordInput(e.target.value)}
-                                        className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-emerald-500 font-mono text-sm"
-                                        placeholder="Enter password..."
-                                        required
-                                    />
-                                </div>
-                                <button type="submit" className="w-full bg-emerald-500 text-slate-950 font-semibold py-3 rounded-lg hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/10">
-                                    Authenticate & Unlock
-                                </button>
-                            </form>
-                            <div className="mt-6 text-center text-xs text-slate-500 font-mono">
-                                Tip: Use any password (default: <span className="text-emerald-400">admin123</span>)
-                            </div>
-                        </div>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between hidden md:flex">
+            <div>
+                <div class="p-6 flex items-center space-x-3">
+                    <div class="bg-blue-600 text-white p-2 rounded-xl flex items-center justify-center font-bold text-lg shadow-md">
+                        <i class="fa-solid fa-shield-halved"></i>
                     </div>
-                );
-            }
-
-            return (
-                <div className="min-h-screen flex flex-col md:flex-row">
-                    {/* Floating Notifications */}
-                    <div className="fixed top-5 right-5 z-50 space-y-2 max-w-sm">
-                        {notifications.map((note, idx) => (
-                            <div key={idx} className="bg-slate-900 border border-emerald-500/30 text-emerald-300 px-4 py-3 rounded-xl shadow-2xl text-xs font-mono animate-bounce">
-                                {note}
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Sidebar Navigation */}
-                    <aside className="w-full md:w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between p-6">
-                        <div>
-                            <div className="flex items-center space-x-3 mb-8">
-                                <div className="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></div>
-                                <span className="font-bold text-lg tracking-tight">Z+ Accounting</span>
-                            </div>
-                            <nav className="space-y-1">
-                                {[
-                                    { id: 'inventory', label: '1. Stock Management' },
-                                    { id: 'labor', label: '2. Labor & Material Variance' },
-                                    { id: 'invoices', label: '3. Invoices & Ledger' },
-                                    { id: 'receivables', label: '4. Payables & Receivables' }
-                                ].map(tab => (
-                                    <button 
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)} 
-                                        className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === tab.id ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}`}
-                                    >
-                                        {tab.label}
-                                    </button>
-                                ))}
-                            </nav>
-                        </div>
-                        <div className="pt-6 border-t border-slate-800">
-                            <button onClick={() => setIsAuthenticated(false)} className="text-xs text-rose-400 hover:underline flex items-center space-x-2 font-mono">
-                                <span>🔒 Lock Session</span>
-                            </button>
-                        </div>
-                    </aside>
-
-                    {/* Main Content Dashboard */}
-                    <main className="flex-1 p-6 md:p-10 overflow-y-auto">
-                        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-4 border-b border-slate-800 gap-4">
-                            <div>
-                                <h2 className="text-2xl font-bold capitalize tracking-tight">{activeTab.replace('-', ' ')}</h2>
-                                <p className="text-xs text-slate-400 font-mono mt-0.5">AES-256 Encrypted Session • GitHub Static Deployment</p>
-                            </div>
-                            <div className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl text-xs font-mono text-emerald-400 flex items-center space-x-2">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                <span>System Status: Fully Secure</span>
-                            </div>
-                        </header>
-
-                        {/* Tab 1: Stock Management */}
-                        {activeTab === 'inventory' && (
-                            <div className="space-y-6">
-                                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                    <h3 className="font-semibold mb-4 text-emerald-400 text-xs tracking-wider uppercase font-mono">Multi-Tier Hierarchy: Category → Sub-Category → Child Sub-Category</h3>
-                                    <div className="space-y-4 font-mono text-sm">
-                                        {categories.map(cat => (
-                                            <div key={cat.id} className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                                                <div className="text-emerald-300 font-bold mb-2">📁 Category: {cat.name}</div>
-                                                {cat.sub.map(sub => (
-                                                    <div key={sub.id} className="pl-6 space-y-2 mt-2">
-                                                        <div className="text-slate-300">📂 Sub-Category: {sub.name}</div>
-                                                        {sub.child.map(child => (
-                                                            <div key={child.id} className="pl-6 bg-slate-900/50 p-3 rounded-lg border border-slate-800/80 flex justify-between items-center">
-                                                                <div>
-                                                                    <span className="text-white font-medium">📄 {child.name}</span>
-                                                                    <span className="text-xs text-slate-400 ml-3">SKU: {child.sku}</span>
-                                                                </div>
-                                                                <div className="text-right">
-                                                                    <span className="text-emerald-400 font-bold">{child.stock} units</span>
-                                                                    <span className="text-xs text-slate-500 ml-3">${child.unitPrice}/u</span>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Tab 2: Labor & Material Variance */}
-                        {activeTab === 'labor' && (
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                        <h3 className="font-semibold mb-4 text-emerald-400 text-xs tracking-wider uppercase font-mono">Labor Attendance & Material Allocation</h3>
-                                        <div className="space-y-3">
-                                            {laborList.map(l => (
-                                                <div key={l.id} className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-sm">
-                                                    <div className="flex justify-between items-center mb-2">
-                                                        <span className="font-bold text-white">{l.name}</span>
-                                                        <span className="bg-emerald-500/10 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-mono">{l.status}</span>
-                                                    </div>
-                                                    <div className="text-xs text-slate-400 font-mono">
-                                                        Role: {l.role} | Issued Material: {l.materialIssued} ({l.issuedQty} units)
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                        <h3 className="font-semibold mb-4 text-emerald-400 text-xs tracking-wider uppercase font-mono">SKU Material Consumption & Variance Alert</h3>
-                                        <form onSubmit={checkMaterialVariance} className="space-y-4 text-sm">
-                                            <div>
-                                                <label className="text-xs text-slate-400 font-mono">Select SKU</label>
-                                                <select className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white font-mono text-xs">
-                                                    <option>SKU-AL-01 (Aluminium Sheets)</option>
-                                                    <option>SKU-CP-02 (Copper Rods)</option>
-                                                </select>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="text-xs text-slate-400 font-mono">Standard BOM Qty</label>
-                                                    <input 
-                                                        type="number" 
-                                                        value={newProdData.standard} 
-                                                        onChange={e => setNewProdData({...newProdData, standard: Number(e.target.value)})}
-                                                        className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white font-mono text-xs" 
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="text-xs text-slate-400 font-mono">Actual Material Used</label>
-                                                    <input 
-                                                        type="number" 
-                                                        value={newProdData.actual} 
-                                                        onChange={e => setNewProdData({...newProdData, actual: Number(e.target.value)})}
-                                                        className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white font-mono text-xs" 
-                                                    />
-                                                </div>
-                                            </div>
-                                            <button type="submit" className="w-full bg-emerald-500 text-slate-950 font-semibold py-2.5 rounded-xl hover:bg-emerald-400 transition-all font-mono text-xs">
-                                                Verify Consumption & Run Alert Check
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Tab 3: Invoices */}
-                        {activeTab === 'invoices' && (
-                            <div className="space-y-6">
-                                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                    <div className="flex justify-between items-center mb-6">
-                                        <h3 className="font-semibold text-emerald-400 text-xs tracking-wider uppercase font-mono">Professional Invoice Generator</h3>
-                                        <button onClick={() => window.print()} className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-xs font-mono border border-slate-700">
-                                            Print / Export PDF
-                                        </button>
-                                    </div>
-                                    <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-6">
-                                        <div className="flex justify-between items-start border-b border-slate-800 pb-6">
-                                            <div>
-                                                <h4 className="font-bold text-lg">Z+ ENTERPRISE CORP</h4>
-                                                <p className="text-xs text-slate-400 font-mono mt-1">Secure Accounting Suite</p>
-                                            </div>
-                                            <div className="text-right font-mono text-xs text-slate-400">
-                                                <p className="text-white font-bold text-sm">INVOICE #INV-1001</p>
-                                                <p>Date: April 10, 2026</p>
-                                                <p>Due Date: April 15, 2026</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex justify-between text-sm">
-                                            <div>
-                                                <span className="text-xs text-slate-400 font-mono uppercase">Billed To:</span>
-                                                <p className="font-bold mt-1">Acme Corp Global</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <span className="text-xs text-slate-400 font-mono uppercase">Status:</span>
-                                                <p className="text-emerald-400 font-bold mt-1">UNPAID</p>
-                                            </div>
-                                        </div>
-                                        <div className="border-t border-slate-800 pt-4 font-mono text-sm flex justify-between font-bold">
-                                            <span>Total Balance Due:</span>
-                                            <span className="text-emerald-400">$4,850.00 USD</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Tab 4: Receivables & Payables */}
-                        {activeTab === 'receivables' && (
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                        <span className="text-xs text-slate-400 font-mono uppercase">Total Accounts Receivable</span>
-                                        <p className="text-3xl font-bold text-emerald-400 mt-2 font-mono">$4,850.00</p>
-                                    </div>
-                                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                        <span className="text-xs text-slate-400 font-mono uppercase">Total Accounts Payable</span>
-                                        <p className="text-3xl font-bold text-rose-400 mt-2 font-mono">$1,420.00</p>
-                                    </div>
-                                </div>
-                                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                    <h3 className="font-semibold mb-4 text-emerald-400 text-xs tracking-wider uppercase font-mono">Ledger Transactions</h3>
-                                    <div className="space-y-3 font-mono text-sm">
-                                        {invoices.map(inv => (
-                                            <div key={inv.id} className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
-                                                <div>
-                                                    <span className="text-white font-bold">{inv.id}</span> - <span className="text-slate-300">{inv.client}</span>
-                                                    <span className="text-xs text-slate-500 ml-3">Due: {inv.dueDate}</span>
-                                                </div>
-                                                <div className="text-right">
-                                                    <span className={`font-bold ${inv.type === 'RECEIVABLE' ? 'text-emerald-400' : 'text-rose-400'}`}>${inv.amount.toFixed(2)}</span>
-                                                    <span className="text-xs px-2.5 py-0.5 rounded-full ml-3 bg-slate-900 border border-slate-800 text-slate-300">{inv.type}</span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </main>
+                    <span class="text-xl font-bold tracking-wide text-white">OmniLedger</span>
                 </div>
-            );
-        }
+                <nav class="mt-4 px-4 space-y-1 text-sm font-medium">
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-blue-600 text-white rounded-xl shadow-sm"><i class="fa-solid fa-chart-pie w-5"></i><span>Overview</span></a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors"><i class="fa-solid fa-warehouse w-5"></i><span>Raw Materials</span></a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors"><i class="fa-solid fa-user-gear w-5"></i><span>Labor Material Log</span></a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors"><i class="fa-solid fa-triangle-exclamation w-5"></i><span>Shrinkage & Theft Log</span></a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors"><i class="fa-solid fa-file-invoice-dollar w-5"></i><span>Invoicing</span></a>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-slate-800">
+                <div class="flex items-center space-x-3 p-2 bg-slate-800/50 rounded-xl">
+                    <div class="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">WH</div>
+                    <div>
+                        <p class="text-sm font-medium text-white">Main Warehouse</p>
+                        <p class="text-xs text-slate-400">Security Level: Strict</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
 
-        ReactDOM.render(<App />, document.getElementById('app'));
-    </script>
+        <!-- Main Workspace -->
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            <!-- Top Header -->
+            <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Inventory Security & Labor Issuance</h1>
+                    <p class="text-sm text-slate-500">Track material allocation to workers and investigate stock discrepancies.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition-all">
+                        <i class="fa-solid fa-clipboard-check mr-2"></i>Audit Stock
+                    </button>
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all">
+                        <i class="fa-solid fa-plus mr-2"></i>Issue Material to Labor
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="p-8 space-y-8">
+                
+                <!-- Section 1: Labor Material Given Tracker -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">Labor Material Checkout Tracker</h3>
+                            <p class="text-xs text-slate-500">Raw materials and tools currently checked out to floor workers</p>
+                        </div>
+                        <span class="bg-blue-50 text-blue-700 text-xs px-3 py-1.5 rounded-lg font-semibold border border-blue-200">
+                            <i class="fa-solid fa-users mr-1"></i> 14 Active Checkouts
+                        </span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                                    <th class="py-3 px-6">Worker / Labor ID</th>
+                                    <th class="py-3 px-6">Material Issued</th>
+                                    <th class="py-3 px-6">Quantity</th>
+                                    <th class="py-3 px-6">Checkout Time</th>
+                                    <th class="py-3 px-6">Assigned Work Order</th>
+                                    <th class="py-3 px-6 text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="py-4 px-6 font-medium text-slate-800">Marcus Vance (#LB-402)</td>
+                                    <td class="py-4 px-6 text-slate-600">Aluminum Alloy Blocks (6061)</td>
+                                    <td class="py-4 px-6 font-semibold text-slate-700">120 kg</td>
+                                    <td class="py-4 px-6 text-slate-500">Today, 08:30 AM</td>
+                                    <td class="py-4 px-6 text-blue-600 font-medium">WO-9941 (Casing)</td>
+                                    <td class="py-4 px-6 text-right"><span class="bg-amber-50 text-amber-700 text-xs px-2.5 py-1 rounded-full font-medium">Checked Out</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="py-4 px-6 font-medium text-slate-800">Elena Rostova (#LB-118)</td>
+                                    <td class="py-4 px-6 text-slate-600">Copper Wiring Spools</td>
+                                    <td class="py-4 px-6 font-semibold text-slate-700">45 meters</td>
+                                    <td class="py-4 px-6 text-slate-500">Yesterday, 02:15 PM</td>
+                                    <td class="py-4 px-6 text-blue-600 font-medium">WO-9938 (Harness)</td>
+                                    <td class="py-4 px-6 text-right"><span class="bg-emerald-50 text-emerald-600 text-xs px-2.5 py-1 rounded-full font-medium">Returned / Used</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 2: Theft & Shrinkage Tracker -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">Stock Shrinkage & Theft Investigation Log</h3>
+                            <p class="text-xs text-slate-500">Audit discrepancies, missing inventory counts, and incident flags</p>
+                        </div>
+                        <span class="bg-rose-50 text-rose-700 text-xs px-3 py-1.5 rounded-lg font-semibold border border-rose-200">
+                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> 2 Open Incidents
+                        </span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                                    <th class="py-3 px-6">Incident ID</th>
+                                    <th class="py-3 px-6">Item Description</th>
+                                    <th class="py-3 px-6">Discrepancy Amount</th>
+                                    <th class="py-3 px-6">Detected Via</th>
+                                    <th class="py-3 px-6">Investigation Status</th>
+                                    <th class="py-3 px-6 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="py-4 px-6 font-medium text-slate-800">INC-8821</td>
+                                    <td class="py-4 px-6 text-slate-600">Precision Micro-Motors</td>
+                                    <td class="py-4 px-6 font-semibold text-rose-600">-6 units ($840.00)</td>
+                                    <td class="py-4 px-6 text-slate-500">Weekly Cycle Count</td>
+                                    <td class="py-4 px-6"><span class="bg-amber-50 text-amber-700 text-xs px-2.5 py-1 rounded-full font-medium">Under Review</span></td>
+                                    <td class="py-4 px-6 text-right"><button class="text-blue-600 hover:underline text-xs font-semibold">Review Logs</button></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="py-4 px-6 font-medium text-slate-800">INC-8794</td>
+                                    <td class="py-4 px-6 text-slate-600">Industrial Resin Binder</td>
+                                    <td class="py-4 px-6 font-semibold text-rose-600">-20 Liters ($240.00)</td>
+                                    <td class="py-4 px-6 text-slate-500">Spillage / Unaccounted</td>
+                                    <td class="py-4 px-6"><span class="bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-full font-medium">Written Off</span></td>
+                                    <td class="py-4 px-6 text-right"><button class="text-slate-500 hover:underline text-xs font-semibold">Archived</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
 </body>
 </html>
